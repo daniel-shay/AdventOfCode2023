@@ -1,3 +1,6 @@
+import threading
+
+
 def check_range(item, source, destination, range):
 
     if source <= item < source + range:
@@ -100,11 +103,12 @@ seeds = seeds.split()[1:]
 
 seedInfos = []
 
-for i in range(int(len(seeds)/2)):
-    # print(i)
-    for j in range(int(seeds[i * 2 + 1])):
+
+def iteration_logic(index):
+    print(index)
+    for j in range(int(seeds[index * 2 + 1])):
         # print(j)
-        seed = int(seeds[i * 2]) + j
+        seed = int(seeds[index * 2]) + j
         soil = get_value(seed, seeds2Soil)
         fertilizer = get_value(soil, soil2Fertilizer)
         water = get_value(fertilizer, fertilizer2Water)
@@ -114,6 +118,19 @@ for i in range(int(len(seeds)/2)):
         location = get_value(humidity, humidity2Location)
 
         seedInfos.append(SeedInfo(seed, soil, fertilizer, water, light, temperature, humidity, location))
+
+
+threads = []
+for i in range(int(len(seeds)/2)):
+    thread = threading.Thread(target=iteration_logic, args=(i,))
+    thread.start()
+    threads.append(thread)
+
+# Wait for all threads to finish
+for thread in threads:
+    thread.join()
+
+print("threads completed")
 
 curMin = 1015522767999
 for seedInfo in seedInfos:
