@@ -46,15 +46,18 @@ for r in range(len(data)):
 # find next
 target = (-1, -1)
 compass = ''
+u_d = ''
 if get_char(data, apply_offset(current, (0, 1))) in pipes:
     target = apply_offset(current, (0, 1))
     compass = 'r'
 elif get_char(data, apply_offset(current, (-1, 0))) in pipes:
     target = apply_offset(current, (-1, 0))
     compass = 'u'
+    u_d = 'u'
 elif get_char(data, apply_offset(current, (1, 0))) in pipes:
     target = apply_offset(current, (1, 0))
     compass = 'd'
+    u_d = 'd'
 elif get_char(data, apply_offset(current, (0, -1))) in pipes:
     target = apply_offset(current, (0, -1))
     compass = 'l'
@@ -81,6 +84,7 @@ for i in range(145*145):
         else:
             target2 = (target[0] - 1, target[1])
             compass = 'u'
+            u_d = 'u'
     elif tar == 'J':  # is a 90-degree bend connecting north and west.
         if compass == 'd':
             target2 = (target[0], target[1] - 1)
@@ -88,10 +92,12 @@ for i in range(145*145):
         else:
             target2 = (target[0] - 1, target[1])
             compass = 'u'
+            u_d = 'u'
     elif tar == '7':  # is a 90-degree bend connecting south and west.
         if compass == 'r':
             target2 = (target[0] + 1, target[1])
             compass = 'd'
+            u_d = 'd'
         else:
             target2 = (target[0], target[1] - 1)
             compass = 'l'
@@ -102,9 +108,10 @@ for i in range(145*145):
         else:
             target2 = (target[0] + 1, target[1])
             compass = 'd'
+            u_d = 'd'
     elif tar == 'S':  # is the starting position of the animal
         break
-    output[target[0]][target[1]] = compass
+    output[target[0]][target[1]] = u_d
 
     count += 1
 
@@ -115,18 +122,49 @@ for i in range(145*145):
 # print(count)
 # print(count // 2)
 
-point = 0  # Positive or Negative!!!
+point = 0
 for r in range(len(output)):
     count = 0
+    countU = 0
+    countL = 0
+    countR = 0
+    countD = 0
+    tail = ''
     for c in range(len(output[r])):
         char = output[r][c]
         print(char, end='')
-        if char in 'ur':  # handle multiple rs
-            count = 1
-        elif char in 'dl':
-            count = -1
-        elif char == '.':
-            if count > 0:
-                point += 1
+        found = False
+        if char == '.':
+            for c2 in range(c - 1, -1, -1):
+                if output[r][c2] == 'u':
+                    point += 1
+                    found = True
+                elif output[r][c2] == 'd':
+                    break
+            if not found:
+                for c2 in range(c + 1, len(output[r])):
+                    if output[r][c2] == 'd':
+                        point += 1
+                        found = True
+                        print(c2, end='')
+                    elif output[r][c2] == 'u':
+                        break
+    #     if char == 'u':
+    #         count = 1
+    #         countU += 1
+    #     elif char == 'r':
+    #         count = 1
+    #         countR += 1
+    #     elif char == 'd':
+    #         count = -1
+    #         countD += 1
+    #     elif char == 'l':
+    #         # count = -1
+    #         countL += 1
+    #     elif char == '.':
+    #         if count > 0:
+    #             point += 1
+    #         tail += str.join(', ', [str(count), str(countU), str(countR), str(countD), str(countL), '+'])
+    # print("count: " + str(count) + ", point: " + str(point) + '    ' + tail)
     print("count: " + str(count) + ", point: " + str(point))
 print(point)
